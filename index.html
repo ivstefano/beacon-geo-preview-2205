@@ -153,6 +153,24 @@
   .win p{font-size:13.5px;color:var(--ink-soft)}
   .win p b{color:var(--ink);font-weight:600}
 
+  /* Fixes & artifacts */
+  .fix-intro{padding:17px 22px;font-size:13.5px;color:var(--ink-soft);line-height:1.55;border-bottom:1px solid var(--hair-2)}
+  .fix-intro b{color:var(--ink)}
+  .fixcards{padding:14px 22px 18px;display:flex;flex-direction:column;gap:12px}
+  .fixcard{border:1px solid var(--hair);border-radius:13px;padding:14px 16px;background:var(--panel-2)}
+  .fixcard .fh{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .fixcard .fh b{font-weight:700;font-size:14.5px}
+  .fixcard .fn{width:23px;height:23px;border-radius:7px;background:var(--brand-soft);color:var(--brand-ink);font-family:var(--mono);font-weight:600;font-size:12px;display:grid;place-items:center;flex:none}
+  .fixcard .row{font-size:13px;color:var(--ink-soft);line-height:1.5;margin-top:5px}
+  .fixcard .row b{color:var(--ink);font-weight:600}
+  .art{margin:0 22px 16px;border:1px solid var(--hair);border-radius:13px;overflow:hidden}
+  .art-h{display:flex;align-items:center;gap:10px;padding:11px 15px;background:var(--panel-2);border-bottom:1px solid var(--hair-2)}
+  .art-h b{font-weight:700;font-size:13.5px;font-family:var(--mono)}
+  .art-h .where{font-size:11.5px;color:var(--muted)}
+  .art-h .copy{margin-left:auto;font-family:var(--sans);font-size:12px;font-weight:600;border:1px solid var(--hair);background:#fff;color:var(--ink-soft);padding:6px 12px;border-radius:8px;cursor:pointer;transition:.15s}
+  .art-h .copy:hover{border-color:var(--brand);color:var(--brand)}
+  .art-desc{padding:10px 15px;font-size:12.5px;color:var(--ink-soft);background:#fff;border-bottom:1px solid var(--hair-2);line-height:1.5}
+  .art pre{margin:0;padding:14px 16px;background:#15140f;color:#e7e2d6;font-family:var(--mono);font-size:11px;line-height:1.55;overflow:auto;max-height:360px;white-space:pre}
   .foot{margin-top:30px;font-size:11.5px;color:var(--muted);line-height:1.6;border-top:1px solid var(--hair);padding-top:16px}
   .foot b{color:var(--ink-soft)}
 
@@ -269,6 +287,65 @@ const DATA = {
    ['Week 3','Build off-site authority',['Create Bridebook / Hitched / Junebug / WeddingWire profiles + reviews','Secure an indexable press/Tatler URL; pitch "best London planner" lists','Stand up LinkedIn company page + YouTube presence']],
    ['Week 4','Trust & freshness',['Add attributed testimonials (name, venue, date)','Add contact NAP; refresh/redirect 2025 posts; restart blog','Add security headers via Cloudflare; publish /llms.txt']],
   ],
+  fixCards:[
+   {sev:'Critical',title:'Build the off-site authority layer',why:'AI answers to "best/cost/recommendation" questions are assembled from directories, listicles and press — not vendor sites. With no Wikipedia, Reddit or wedding-directory footprint, AI has nothing independent to cite, so the brand wins 0 of 7 prompts no matter how good the site is.',how:'Create complete, review-bearing profiles on Bridebook, Hitched, Junebug and WeddingWire; pitch inclusion in editorial "best London planners" lists (THE WED, SheerLuxe); secure one live, indexable press/Tatler URL.'},
+   {sev:'Critical',title:'Give the brand a machine-readable identity',why:'The Showit front-end emits zero structured data, so AI has no entity record (name, location, founder, services) to anchor a citation to. The brand is literally undefined to a machine.',how:'Paste the Organization + LocalBusiness JSON-LD below into the Showit site-wide head code. Add a Service block on service pages and Person schema for the founder.'},
+   {sev:'High',title:'Own the "how much does it cost" answer',why:'The cost prompt is the single highest commercial-intent query and competitors win it purely by publishing their £ figures in a guide. Events by James has the numbers (£9,000+VAT) but buries them.',how:'Publish a dedicated "How much does a London wedding planner cost?" guide in answer-block format, leading with the £9,000+VAT / £6,000 figures and market context.'},
+   {sev:'High',title:'Surface the site’s core pages',why:'Every Showit service, venue and about page is absent from all sitemaps (only the homepage + an orphan page are listed), so discovery relies on internal links alone — slow, low-priority indexing for the pages that earn revenue.',how:'Enable Showit’s sitemap (or add the core URLs to a supplementary sitemap) and submit it in Search Console; delete the orphan /sample-page/.'},
+  ],
+  artifacts:[
+   {name:'Organization + LocalBusiness JSON-LD',where:'Showit → site-wide head code',desc:'Gives AI a structured entity record (name, London service area, founder, price range, services). The single highest-impact fix. Replace the sameAs handles and add a real address/phone if available.',code:`<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["Organization", "LocalBusiness"],
+      "@id": "https://eventsbyjames.com/#organization",
+      "name": "Events by James",
+      "url": "https://eventsbyjames.com/",
+      "description": "Luxury wedding planner in London specialising in bespoke event planning, design and coordination.",
+      "priceRange": "\\u00a3\\u00a3\\u00a3\\u00a3\\u00a3",
+      "areaServed": [
+        { "@type": "City", "name": "London" },
+        { "@type": "Country", "name": "United Kingdom" }
+      ],
+      "address": { "@type": "PostalAddress", "addressLocality": "London", "addressCountry": "GB" },
+      "founder": { "@type": "Person", "name": "James Green", "jobTitle": "Founder & Lead Wedding Planner" },
+      "sameAs": [
+        "https://www.instagram.com/REPLACE",
+        "https://www.pinterest.com/REPLACE",
+        "https://www.tiktok.com/REPLACE"
+      ],
+      "makesOffer": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Full Wedding Planning", "url": "https://eventsbyjames.com/full-wedding-planning/" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Partial Wedding Planning" } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Month of Coordination" } }
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://eventsbyjames.com/#website",
+      "url": "https://eventsbyjames.com/",
+      "name": "Events by James",
+      "publisher": { "@id": "https://eventsbyjames.com/#organization" }
+    }
+  ]
+}
+<\\/script>`},
+   {name:'llms.txt',where:'Serve at https://eventsbyjames.com/llms.txt',desc:'A simple map that helps AI crawlers understand the site structure. Both sites currently score 0 here — this is a quick, low-effort win.',code:`# Events by James
+
+> Luxury wedding & event planner in London. Full planning, design and coordination for bespoke celebrations, led by founder James Green.
+
+## Services
+- [Full Wedding Planning](https://eventsbyjames.com/full-wedding-planning/): End-to-end luxury planning from \\u00a39,000+VAT.
+- [Partial & Coordination](https://eventsbyjames.com/): Partial planning, month-of and day-of coordination.
+
+## Venues
+- [Historic London venues](https://eventsbyjames.com/): The Charterhouse, Old Sessions House, Pylewell Park and more.
+
+## Resources
+- [Blog](https://eventsbyjames.com/blog/): Wedding planning guides, cost advice and real weddings.`},
+  ],
  },
  crysp:{
   name:'Crysp', fav:'Cr', favbg:'#2E6E7D', url:'crysp.co.uk',
@@ -308,6 +385,67 @@ const DATA = {
    ['Week 3','Win third-party space',['Pitch inclusion in HSE / schools / property roundups with a fact sheet','Saturate Capterra / G2 / GetApp + review drive','Own "digital twin compliance" in trade press (vs the same-named rival)']],
    ['Week 4','Polish & trust',['Replace marketing H1s with query-matched headings; add update dates','Publish pricing signal + cost FAQ; set lang=en-GB; publish /llms.txt','Mitigate security headers via a Cloudflare proxy']],
   ],
+  fixCards:[
+   {sev:'Critical',title:'Get into the comparison listicles',why:'AI builds "best/top/alternatives" answers almost entirely from roundups ("Best HSE software UK") and review aggregators (Capterra, G2). Crysp is in almost none of them, so it is invisible for 6 of 7 buyer prompts regardless of site quality.',how:'Outreach to the authors of the HSE / schools / property compliance roundups with a fact sheet (hard numbers + EDF/Trinity proof); claim and saturate Capterra, G2, Software Advice and GetApp.'},
+   {sev:'Critical',title:'Tell AI that Crysp is software',why:'The only schema on the site is three thin Squarespace defaults (including a misapplied LocalBusiness). There is no SoftwareApplication markup, so AI cannot classify Crysp as a compliance platform.',how:'Paste the Organization + SoftwareApplication JSON-LD below via Settings → Advanced → Code Injection (Header), and populate Organization.sameAs with LinkedIn, Companies House and Crunchbase.'},
+   {sev:'High',title:'Make the case studies quotable',why:'The flagship EDF / Hinkley Point C study has named quotes but zero numbers — no % time saved, no document counts — so AI has nothing extractable to cite from the strongest asset on the site.',how:'Add 2–4 quantified outcomes to each case study (EDF, Trinity, Carlton), then mark them up with Review / AggregateRating schema.'},
+   {sev:'High',title:'Answer buyer questions in extractable form',why:'Sector pages cite no named regulations (HSWA 1974, RRFSO 2005, COSHH) and there are no FAQ blocks — the format AI Overviews and Perplexity quote most often is entirely missing.',how:'Add a named-regulation answer block + FAQPage schema to each sector page (schools first), and publish at least a "from £X" pricing signal.'},
+  ],
+  artifacts:[
+   {name:'Organization + SoftwareApplication JSON-LD',where:'Squarespace → Code Injection (Header)',desc:'Makes AI classify Crysp as a compliance SaaS (not a local business) and connects the brand entity to its profiles. Replace the Companies House number and confirm social URLs. Omit the offers block if pricing stays gated.',code:`<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://www.crysp.co.uk/#organization",
+      "name": "Crysp",
+      "legalName": "Crysp Limited",
+      "url": "https://www.crysp.co.uk",
+      "logo": "https://www.crysp.co.uk/favicon.ico",
+      "description": "Crysp is a UK compliance-management platform combining software with expert health, safety and fire consultancy.",
+      "address": { "@type": "PostalAddress", "addressLocality": "Shipley", "addressRegion": "England", "postalCode": "BD18 3HU", "addressCountry": "GB" },
+      "contactPoint": { "@type": "ContactPoint", "contactType": "sales", "url": "https://www.crysp.co.uk/contact", "areaServed": "GB" },
+      "sameAs": [
+        "https://www.linkedin.com/company/crysp",
+        "https://find-and-update.company-information.service.gov.uk/company/REPLACE",
+        "https://www.crunchbase.com/organization/crysp"
+      ]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://www.crysp.co.uk/#software",
+      "name": "Crysp Compliance Management Platform",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Compliance Management Software",
+      "operatingSystem": "Web-based (SaaS)",
+      "url": "https://www.crysp.co.uk",
+      "publisher": { "@id": "https://www.crysp.co.uk/#organization" },
+      "description": "Cloud-based compliance, health & safety and building/asset management platform for schools, healthcare, retail, offices and property, combined with expert consultancy.",
+      "featureList": ["Health & Safety Management", "Compliance Management", "Building and Asset Management", "CQC Management and Reporting", "E-learning and Training", "IoT and Wearables", "Digital Twin Solutions"],
+      "offers": { "@type": "Offer", "priceCurrency": "GBP", "url": "https://www.crysp.co.uk/pricing", "availability": "https://schema.org/InStock" }
+    }
+  ]
+}
+<\\/script>`},
+   {name:'llms.txt',where:'Serve at https://www.crysp.co.uk/llms.txt',desc:'Curated map of the platform, sectors and proof for AI crawlers. Quick win — currently scores 0.',code:`# Crysp
+
+> UK compliance-management platform combining health & safety, fire and property compliance software with expert consultancy. Used by EDF Energy (Hinkley Point C), Trinity MAT and others.
+
+## Platform
+- [How it works](https://www.crysp.co.uk/how-it-works/compliance-management-software): Compliance, H&S and asset management in one dashboard.
+- [Pricing](https://www.crysp.co.uk/pricing): Plans and demo requests.
+
+## Sectors
+- [Schools & academy trusts](https://www.crysp.co.uk/who-we-can-help/schools)
+- [Property & facilities](https://www.crysp.co.uk/who-we-can-help/property)
+- [Offices](https://www.crysp.co.uk/who-we-can-help/offices)
+- [Retail](https://www.crysp.co.uk/who-we-can-help/retail)
+
+## Proof
+- [EDF Energy / Hinkley Point C case study](https://www.crysp.co.uk/case-study/edf-energy-hinkley)
+- [Trinity MAT case study](https://www.crysp.co.uk/case-study/trinity-mat)`},
+  ],
  },
 };
 
@@ -316,6 +454,7 @@ const NAV = [
   ['prompts','AI-Answer Prompts','M4 6h16M4 12h16M4 18h10'],
   ['visibility','Visibility Breakdown','M4 19V5m6 14V9m6 10V13'],
   ['issues','Issues','M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3l-8-14a2 2 0 00-3.4 0z'],
+  ['fixes','Fixes & Artifacts','M14.7 6.3a4 4 0 00-5.2 5.2L3 18v3h3l6.5-6.5a4 4 0 005.2-5.2l-2.8 2.8-2-2 2.8-2.8z'],
   ['plan','30-Day Plan','M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11'],
 ];
 
@@ -449,6 +588,31 @@ function planPanel(d){
 
 const FOOT = `<div class="foot reveal" style="--d:.32s"><b>How to read this.</b> "AI Answer Presence" is the share of high-intent buyer prompts where the brand is actually cited by AI engines today — the single number that says "are my clients showing up." The GEO Visibility Score is the composite of six citability dimensions. <br><b>Methodology.</b> Prompt visibility derived from live SERP/answer-source analysis (which pages AI synthesises from) on 1 Jun 2026; in production this is replaced by direct daily LLM querying. A prototype built from real audit data — brand &amp; UI are placeholders.</div>`;
 
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function copyArt(btn){var pre=btn.closest('.art').querySelector('pre');navigator.clipboard.writeText(pre.textContent).then(function(){var o=btn.textContent;btn.textContent='Copied ✓';setTimeout(function(){btn.textContent=o;},1500);});}
+
+function fixesPanel(d){
+  return `<div class="panel reveal" style="--d:.08s">
+    <div class="panel-h"><h2>What to Improve &amp; Why</h2><p>The highest-leverage fixes, in plain English</p></div>
+    <div class="fix-intro">The website itself is rarely the bottleneck — what blocks AI citations is <b>off-site authority</b> (sources AI can independently cite) and <b>machine-readable identity</b> (schema). These are the fixes that actually move the visibility score, ordered by impact.</div>
+    <div class="fixcards">${d.fixCards.map((f,i)=>{const[c,bg]=SEV[f.sev];return `
+      <div class="fixcard">
+        <div class="fh"><span class="fn">${i+1}</span><b>${f.title}</b><span class="sev-tag" style="color:${c};background:${bg};margin-left:auto">${f.sev}</span></div>
+        <div class="row"><b>Why it matters — </b>${f.why}</div>
+        <div class="row"><b>How to fix — </b>${f.how}</div>
+      </div>`;}).join('')}</div>
+  </div>
+  <div class="panel reveal" style="--d:.14s">
+    <div class="panel-h"><h2>Ready-to-Paste Artifacts</h2><p>Copy these straight into the site</p><span class="pill">${d.artifacts.length} files</span></div>
+    ${d.artifacts.map(a=>`
+      <div class="art">
+        <div class="art-h"><b>${a.name}</b><span class="where">${a.where}</span><button class="copy" onclick="copyArt(this)">Copy</button></div>
+        <div class="art-desc">${a.desc}</div>
+        <pre>${esc(a.code)}</pre>
+      </div>`).join('')}
+  </div>`;
+}
+
 function render(){
   const d=DATA[cur];
   let body=head(d);
@@ -456,6 +620,7 @@ function render(){
   else if(tab==='prompts') body+=kpis(d)+promptTable(d)+FOOT;
   else if(tab==='visibility') body+=kpis(d)+catPanel(d)+FOOT;
   else if(tab==='issues') body+=kpis(d)+issuesPanel(d)+FOOT;
+  else if(tab==='fixes') body+=fixesPanel(d)+FOOT;
   else if(tab==='plan') body+=planPanel(d)+FOOT;
   document.getElementById('main').innerHTML=body;
   renderSidebar();
