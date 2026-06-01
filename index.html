@@ -266,7 +266,7 @@ function bandFor(s){ if(s>=90)return['Excellent','#E4F1E5',C.good]; if(s>=75)ret
   if(s>=60)return['Fair','#F2F2D9','#7A7A12']; if(s>=40)return['Poor','#FBEEDC',C.high]; return['Critical','#F8E7E3',C.crit]; }
 const TYPE = {C:['C','#C2710C','#FBEEDC'],I:['I','#2E6E7D','#DDEEF1'],B:['B','#0E5A4C','#E4EFEA'],X:['X','#7A4FB5','#ECE3F7']};
 const TYPE_NAME = {C:'Commercial',I:'Informational',B:'Branded',X:'Comparison'};
-const VERD = {Missing:[C.crit,'#F8E7E3'],Weak:[C.high,'#FBEEDC'],Partial:['#9A7A05','#F7F0D6'],Cited:[C.good,'#E4F1E5']};
+const VERD = {Missing:[C.crit,'#F8E7E3'],Weak:[C.high,'#FBEEDC'],Partial:['#9A7A05','#F7F0D6'],Cited:[C.good,'#E4F1E5'],Appears:['#9A7A05','#F7F0D6'],Buried:[C.high,'#FBEEDC'],Barely:[C.crit,'#F8E7E3']};
 const SEV = {Critical:[C.crit,'#F8E7E3'],High:[C.high,'#FBEEDC'],Medium:[C.med,'#F7F0D6'],Low:[C.mut,'#EFEAE0']};
 
 const DATA = {
@@ -468,6 +468,83 @@ const DATA = {
 - [Trinity MAT case study](https://www.crysp.co.uk/case-study/trinity-mat)`},
   ],
  },
+ vitalis:{
+  name:'Vitalis', fav:'Vi', favbg:'#3E7A4E', url:'vitalis.bg',
+  type:'Supplements E-commerce · Bulgaria', lastRun:'1 Jun 2026',
+  geo:65, presence:25, prompts7:10,
+  source:'Real Google Search Console queries (Google + AI surfaces) — position shown; AI citations to date: ~0',
+  presNote:'Appears for ~25% of tracked queries — but mostly <b>buried</b> below citable position. AI-cited: ~0.',
+  cats:[['AI Citability',72,25],['Brand Authority',30,20],['Content E-E-A-T',54,20],['Technical GEO',86,15],['Schema & Structured Data',88,10],['Platform Optimization',88,10]],
+  prompts:[
+   {q:'за какво помага ехинацея — what does echinacea help with',t:'I',owner:'jamieson.bg · natu.care · gymbeam',v:60,verdict:'Appears',sev:'Low'},
+   {q:'ашваганда за какво помага — what does ashwagandha help with',t:'I',owner:'forlife.bg · natu.care · ashvaganda.bg',v:48,verdict:'Appears',sev:'Low'},
+   {q:'топ невротропни комплекси B1+B12 за болки в гърба — top B1+B12 complexes for back pain',t:'C',owner:'aptekanove.bg · jamieson.bg · aloha.bg',v:44,verdict:'Buried',sev:'Medium'},
+   {q:'колко време се пие спирулина — how long to take spirulina',t:'I',owner:'vitamag.bg · natu.care · kolastra.eu',v:42,verdict:'Buried',sev:'Medium'},
+   {q:'какво лекува ашваганда — what does ashwagandha treat',t:'I',owner:'forlife.bg · actualno.com · natu.care',v:16,verdict:'Barely',sev:'High'},
+   {q:'как да отслабнем — how to lose weight',t:'I',owner:'health media + pharmacy blogs',v:12,verdict:'Barely',sev:'High'},
+   {q:'как се излекувах от подагра — how I cured gout',t:'I',owner:'offnews.bg · mrvit.bg · demirbozan.org',v:8,verdict:'Barely',sev:'High'},
+   {q:'кое хранително вещество е важно за ставите — which nutrient matters for joints',t:'I',owner:'forlife.bg · vitamag.bg · galen.bg',v:7,verdict:'Barely',sev:'High'},
+   {q:'какво се пие при криза от подагра — what to take during a gout flare',t:'I',owner:'offnews.bg · mrvit.bg',v:4,verdict:'Barely',sev:'High'},
+   {q:'какво е трибулус терестрис — what is tribulus terrestris',t:'I',owner:'BG health / fitness portals',v:7,verdict:'Barely',sev:'High'},
+  ],
+  iss:{Critical:3,High:4,Medium:3,Low:1},
+  issues:[
+   ['Critical','Off-site brand authority is near-zero — and the name is ambiguous','No Wikipedia, Reddit, YouTube or third-party reviews; a separate "Vitalis Pharma" brand causes entity confusion. AI won’t cite a store it can’t recognise as a distinct, trusted entity — standardise on the trademark "HiVital".'],
+   ['Critical','Cited in ~0 AI answers despite ranking — a links/authority gap, not content','AI synthesises from info-sites (natu.care, forlife, pharmacy portals), never the store. Even the perfect-match B1+B12 content (pos 9) loses to a pharmacy portal.'],
+   ['Critical','Medical-reviewer credential mismatch (YMYL risk)','Articles are "reviewed by" an infectious-diseases specialist — the wrong specialty for nutrition content. A mismatched YMYL reviewer can backfire; use a nutritionist / pharmacist / GP.'],
+   ['High','reviewedBy + dateModified are inconsistent across the article corpus','Only some article slugs carry the reviewer, FAQ and date; the rest (which still earn question-query impressions) lose the signal. The mu-plugin config-map must cover every article.'],
+   ['High','The strong blog model isn’t applied to the money prompts','The ashwagandha guide (direct answer + FAQ + dosages + study + reviewer) is best-in-class — but gout (pos 50/66), joints (pos 54) and weight-loss (pos 38) have no equivalent and are lost to media.'],
+   ['High','Author/reviewer aren’t verifiable entities','/author/ivo is a bare WordPress archive; the reviewer has no profile page. Schema attribution without a crawlable, credentialed person is uncorroborable by LLMs.'],
+   ['High','Product↔education hub-and-spoke is broken; no pillar page','Product pages link only to products; articles don’t link to the product; seven sibling ashwagandha posts compete with no canonical guide.'],
+   ['Medium','Product & category pages aren’t answer-extractable','Product pages outrank the articles yet answer none of the buyer questions and omit FAQ/usage/contraindications; category pages are bare grids.'],
+   ['Medium','Product schema has no top-level offers.price','Offer carries only priceSpecification; Google + most LLM extractors read offers.price first and may drop the price.'],
+   ['Medium','llms.txt covers articles only; no /llms-full.txt','Add product categories and generate llms-full.txt to lift it from 70 → 90+.'],
+   ['Low','Security headers thin; faceted ?orderby= URLs crawlable; CCBot not explicit','Add HSTS/nosniff/X-Frame/Referrer-Policy; Disallow ?orderby=; add an explicit CCBot allow.'],
+  ],
+  wins:[
+   '<b>Standardise the brand to "HiVital"</b> everywhere to escape the "Vitalis Pharma" name collision and build one recognisable entity.',
+   '<b>Fix the medical reviewer</b> — swap the infectious-diseases credential for a nutritionist/pharmacist, and extend reviewedBy+date to every article in the mu-plugin config-map.',
+   '<b>Clone the ashwagandha guide format</b> onto gout, joints and weight-loss — the prompts where you rank 50+ and lose to media.',
+   '<b>Add FAQ/usage/contraindication blocks to product & category pages</b> so the pages that actually rank become answer-extractable.',
+   '<b>Add top-level offers.price</b> to Product schema and publish /llms-full.txt — quick mu-plugin wins.',
+  ],
+  weeks:[
+   ['Week 1','Entity & trust',['Standardise brand to "HiVital" site-wide; add OnlineStore schema','Fix reviewer credential; extend reviewedBy+dateModified to all article slugs','Build real author + reviewer profile pages with credentials + sameAs']],
+   ['Week 2','Answer the money prompts',['Publish gout, joints & weight-loss guides on the ashwagandha template','Add FAQ + usage + contraindication blocks to top product pages','Add intro + FAQ to key category pages (стави, омега-3, антистрес)']],
+   ['Week 3','Authority & links',['Get listed on eMAG, dobavki.org and comparison/"топ" portals','Seed Google Business + Trustpilot reviews; pitch BG health media','Build the "Ашваганда: пълно ръководство" pillar; wire product↔article links']],
+   ['Week 4','Technical polish',['Add offers.price to Product schema; emit category ItemList','Publish /llms-full.txt + product categories in llms.txt','Add security headers; Disallow ?orderby=; explicit CCBot allow']],
+  ],
+  fixCards:[
+   {sev:'Critical',title:'Disambiguate to “HiVital” + build off-site authority',why:'AI won’t cite a store it can’t recognise as a distinct, trusted entity — and a separate “Vitalis Pharma” brand muddies the signal. Off-domain presence is near-zero.',how:'Standardise on the trademark “HiVital”; get listed on eMAG / dobavki.org / comparison portals; seed Google Business + Trustpilot reviews; pursue BG health-media mentions.'},
+   {sev:'Critical',title:'Fix the YMYL medical-reviewer signal',why:'Your best trust asset — a medical reviewer in schema — uses an infectious-diseases specialist on nutrition content (wrong specialty) and is missing on most articles. A mismatched/uneven YMYL reviewer hurts more than it helps.',how:'Swap to a nutritionist/pharmacist/GP credential; extend reviewedBy + dateModified to every article slug in the mu-plugin config-map; publish a credentialed reviewer profile page.'},
+   {sev:'High',title:'Clone the ashwagandha guide onto the money prompts',why:'You already rank (buried) for gout, joints and weight-loss but lose to media at pos 50+. Your ashwagandha article format (direct answer + FAQ + dosage + study + reviewer) is best-in-class and would compete.',how:'Build authoritative guides for gout, joints and weight-loss on that template; add a pillar page and link the cluster.'},
+   {sev:'High',title:'Make the pages that rank answer-extractable',why:'Product pages often outrank your articles yet answer none of the buyer questions and omit safety info; category pages are bare grids — so AI has nothing to lift.',how:'Add a “За какво / Как се приема / ЧЗВ” FAQ block to product pages and an intro + FAQ to category pages; wire product↔article links.'},
+  ],
+  artifacts:[
+   {name:'Product Offer — add top-level price (JSON-LD patch)',where:'mu-plugin: mirror priceSpecification → offers.price',desc:'Google + most LLM extractors read offers.price first; your Offer only has priceSpecification, so the price is often dropped. Add these properties directly on the Offer node.',code:`"offers": {
+  "@type": "Offer",
+  "price": "53.50",
+  "priceCurrency": "EUR",
+  "availability": "https://schema.org/InStock",
+  "url": "https://vitalis.bg/products/..."
+}`},
+   {name:'Product / category FAQ block (Bulgarian template)',where:'Below product description & atop category pages (wrap in FAQPage schema)',desc:'Makes the commercial pages that actually rank answer the buyer questions AI lifts. Mirrors the ashwagandha guide.',code:`<h2>Какво помага ашвагандата и как се приема?</h2>
+<p>Ашвагандата е адаптоген, който понижава кортизола и
+подпомага съня и устойчивостта към стрес. Препоръчителна
+доза: 1 капсула (600 mg екстракт 15:1, 60 mg витанолиди)
+вечер с храна. За траен ефект се приема 8–12 седмици.
+Не се препоръчва при бременност, кърмене или прием на
+антидепресанти без лекарска консултация.</p>`},
+   {name:'robots.txt additions',where:'vitalis.bg/robots.txt',desc:'Make CommonCrawl (a major LLM training corpus) explicit, and stop faceted-sort URLs from bloating AI crawls.',code:`User-agent: CCBot
+Allow: /
+
+User-agent: *
+Disallow: /*?orderby=
+Disallow: /*?filter_
+Disallow: /*?min_price=
+Disallow: /*?max_price=`},
+  ],
+ },
 };
 
 const NAV = [
@@ -539,7 +616,7 @@ function kpis(d){
       <div class="ksub">Share of monitored prompts where cited</div>
       <div class="bignum" style="color:${scoreColor(d.presence)}">${d.presence}<small>%</small></div>
       <div class="meter"><i style="width:${Math.max(d.presence,2)}%;background:${scoreColor(d.presence)}"></i></div>
-      <div class="pres-note">Strongly cited in <b>${cited}</b> of ${d.prompts7} buyer prompts.</div>
+      <div class="pres-note">${d.presNote||('Strongly cited in <b>'+cited+'</b> of '+d.prompts7+' buyer prompts.')}</div>
     </div>
     <div class="card reveal" style="--d:.16s">
       <div class="klabel">Prompts Monitored</div>
@@ -558,7 +635,7 @@ function kpis(d){
 
 function promptTable(d){
   return `<div class="panel reveal" style="--d:.24s">
-    <div class="panel-h"><h2>AI-Answer Prompts</h2><p>Where this brand shows up when buyers ask AI</p><span class="pill">${d.prompts7} prompts</span></div>
+    <div class="panel-h"><h2>AI-Answer Prompts</h2><p>${d.source||'Where this brand shows up when buyers ask AI'}</p><span class="pill">${d.prompts7} prompts</span></div>
     <table class="ptable"><thead><tr><th>Buyer prompt &amp; who owns the AI answer</th><th>Intent</th><th style="text-align:center">Visibility</th><th>Verdict</th></tr></thead><tbody>
     ${d.prompts.map(p=>{const [tc,col,bgc]=TYPE[p.t];const [vc,vbg]=VERD[p.verdict];const [sc,sbg]=SEV[p.sev];return `
       <tr>
@@ -682,6 +759,28 @@ const COMP = {
   h2h:{rival:'Evalu-8',summary:'Appears in 3 of 7 buyer prompts. Crysp: 1, weakly.',
    wins:['“Best health & safety compliance software UK”','“Compliance software for schools UK”','“Alternatives to Alcumus / EcoOnline”'],
    edges:['Inclusion in the “best of” listicles AI cites for these queries','Claimed & populated Capterra / G2 review profiles','Clear sector-specific positioning pages with proof']},
+ },
+ vitalis:{
+  denom:10,
+  you:{prompts:1,note:'— borderline only, mostly buried'},
+  sov:[
+   {name:'natu.care (BG)',prompts:5},
+   {name:'forlife.bg',prompts:3},
+   {name:'jamieson.bg',prompts:3},
+   {name:'Pharmacy portals (aptekanove / galen / lekar)',prompts:3},
+   {name:'Health media (offnews / mrvit)',prompts:3},
+   {name:'vitamag.bg',prompts:2},
+  ],
+  whoWhy:[
+   {name:'natu.care (BG)',where:'ashwagandha, omega-3, spirulina, B12, joints',why:'Long-form “doctor’s opinion” + ТОП-ranking articles — an info-site, not a store, so AI treats it as an answer source.',gap:'Vitalis is a store; its blog isn’t yet linked/trusted enough to be picked over it.',tags:['Info authority','ТОП lists']},
+   {name:'forlife.bg',where:'ashwagandha, glucosamine, joints',why:'Retailer with strong informational content and links.',gap:'Vitalis blog is citable but under-linked.',tags:['Retailer + content']},
+   {name:'Pharmacy portals (aptekanove / galen / lekar)',where:'joints, B12, omega-3',why:'High institutional / YMYL trust AI defers to for health queries.',gap:'Vitalis lacks comparable medical-authority signals.',tags:['YMYL trust']},
+   {name:'jamieson.bg',where:'echinacea, omega-3, B12',why:'Brand-as-publisher with educational content.',gap:'Vitalis education is siloed from its products.',tags:['Brand publisher']},
+   {name:'Health media (offnews / mrvit / demirbozan)',where:'gout, weight loss',why:'News/health domains AI trusts for “how to cure / how to lose” queries.',gap:'Vitalis has no media coverage.',tags:['Health media']},
+  ],
+  h2h:{rival:'natu.care',summary:'Appears in ~5 of 10 tracked prompts. Vitalis: 1, borderline.',
+   wins:['“какво лекува ашваганда” (what ashwagandha treats)','“колко време се пие спирулина” (how long to take spirulina)','“кое хранително вещество е важно за ставите” (nutrient for joints)'],
+   edges:['Long-form info articles (not product pages) that AI treats as answers','ТОП / “best of” ranking content AI lifts directly','Topical authority + inbound links across the whole supplement category']},
  },
 };
 
