@@ -171,6 +171,27 @@
   .art-h .copy:hover{border-color:var(--brand);color:var(--brand)}
   .art-desc{padding:10px 15px;font-size:12.5px;color:var(--ink-soft);background:#fff;border-bottom:1px solid var(--hair-2);line-height:1.5}
   .art pre{margin:0;padding:14px 16px;background:#15140f;color:#e7e2d6;font-family:var(--mono);font-size:11px;line-height:1.55;overflow:auto;max-height:360px;white-space:pre}
+  /* Competitors */
+  .sov-row{display:grid;grid-template-columns:200px 1fr 92px;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--hair-2)}
+  .sov-row:last-child{border-bottom:none}
+  .sov-row .cn{font-weight:600;font-size:13.5px}
+  .sov-bar{height:15px;border-radius:7px;background:var(--hair-2);overflow:hidden}
+  .sov-bar i{display:block;height:100%;border-radius:7px}
+  .sov-val{font-family:var(--mono);font-size:12px;text-align:right;color:var(--ink-soft)}
+  .sov-row.you{background:#fdecea;margin:0 -22px;padding:11px 22px;border-bottom:none}
+  .sov-row.you .cn{color:var(--crit)}
+  .whytable td{font-size:12.5px}
+  .tagrow{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+  .ctag{font-size:10px;font-weight:600;padding:1px 7px;border-radius:6px;background:var(--brand-soft);color:var(--brand-ink)}
+  .h2h{margin:0 22px 18px;border:1px solid var(--hair);border-radius:14px;overflow:hidden}
+  .h2h-h{padding:15px 18px;background:linear-gradient(120deg,#10312b,#0a221d);color:#fff;font-family:var(--serif);font-size:17px;font-weight:600}
+  .h2h-h span{color:#9cc7bb;font-family:var(--sans);font-size:12.5px;font-weight:500;display:block;margin-top:3px}
+  .h2h-body{padding:17px 18px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .h2h-col h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px}
+  .h2h-col ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .h2h-col li{font-size:13px;color:var(--ink-soft);display:flex;gap:8px;line-height:1.45}
+  .h2h-col li svg{width:15px;height:15px;flex:none;margin-top:2px}
+  @media(max-width:920px){.h2h-body{grid-template-columns:1fr}.sov-row{grid-template-columns:120px 1fr 64px}}
   .foot{margin-top:30px;font-size:11.5px;color:var(--muted);line-height:1.6;border-top:1px solid var(--hair);padding-top:16px}
   .foot b{color:var(--ink-soft)}
 
@@ -453,6 +474,7 @@ const NAV = [
   ['overview','Overview','M3 12l2-2 4 4 8-8 2 2'],
   ['prompts','AI-Answer Prompts','M4 6h16M4 12h16M4 18h10'],
   ['visibility','Visibility Breakdown','M4 19V5m6 14V9m6 10V13'],
+  ['competitors','Competitors','M17 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9.5 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75'],
   ['issues','Issues','M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3l-8-14a2 2 0 00-3.4 0z'],
   ['fixes','Fixes & Artifacts','M14.7 6.3a4 4 0 00-5.2 5.2L3 18v3h3l6.5-6.5a4 4 0 005.2-5.2l-2.8 2.8-2-2 2.8-2.8z'],
   ['plan','30-Day Plan','M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11'],
@@ -612,12 +634,91 @@ function fixesPanel(d){
   </div>`;
 }
 
+const COMP = {
+ ebj:{
+  denom:7,
+  you:{prompts:0,note:'— absent from every buyer prompt'},
+  sov:[
+   {name:'Sarah Haywood',prompts:3},
+   {name:'One Oake',prompts:2},
+   {name:'Planned for Perfection',prompts:2},
+   {name:'Junebug (editorial list)',prompts:2},
+   {name:'ByChenai Events',prompts:1},
+   {name:'Emma Reeve',prompts:1},
+   {name:'Luxus Events',prompts:1},
+   {name:'Alice Wilkes Design',prompts:1},
+  ],
+  whoWhy:[
+   {name:'Hitched.co.uk — “10 Best Wedding Planners in London”',where:'ChatGPT + Perplexity (primary source)',why:'The single most-cited page. Every brand AI recommends has a Hitched profile.',gap:'Has a profile, but unoptimised — so AI never pulls it.',tags:['#1 source']},
+   {name:'Sarah Haywood',where:'Google AI (direct site citation)',why:'Own site cited directly — structured, authored, FAQ-rich.',gap:'EbJ site has no schema/FAQ for AI to extract.',tags:['Direct cite','FAQ-rich']},
+   {name:'NIEMIERKO',where:'ChatGPT, Google AI, Perplexity',why:'The Times feature + explicit ultra-luxury positioning.',gap:'No editorial press discoverable to AI.',tags:['The Times']},
+   {name:'ByChenai Events',where:'ChatGPT + Google AI',why:'Harper’s Bazaar feature + TWIA National Planner of the Year.',gap:'No award or press citations anywhere AI reads.',tags:['Harper’s Bazaar','Award']},
+   {name:'Emma Jane Weddings',where:'Perplexity (pos 3)',why:'Crystal-clear entity description: London studio, full-service, UK/Europe/SA.',gap:'EbJ has no clear entity description on the open web.',tags:['Entity desc']},
+   {name:'Matthew Oliver Weddings',where:'Perplexity (pos 2)',why:'Listed on aggregators + a strongly structured own site.',gap:'Not in any aggregator/directory AI reads.',tags:['Aggregators']},
+  ],
+  h2h:{rival:'Sarah Haywood',summary:'Appears in 3 of 7 buyer prompts. Events by James: 0.',
+   wins:['“Best luxury wedding planners in London”','“Mayfair wedding planner recommendations”','“Who planned the Tatler-featured London weddings?”'],
+   edges:['Her own site is cited directly by AI — structured, authored, FAQ-rich (schema present)','An optimised directory footprint (Hitched + “best of” lists)','Press/editorial association AI can verify (The Times-tier)']},
+ },
+ crysp:{
+  denom:7,
+  you:{prompts:1,note:'— and only as a weak also-ran (schools)'},
+  sov:[
+   {name:'Evalu-8',prompts:3},
+   {name:'Alcumus / EcoOnline',prompts:2},
+   {name:'Cority',prompts:2},
+   {name:'SmartQHSE (listicle)',prompts:1},
+   {name:'iAM Compliant',prompts:1},
+   {name:'Radar Healthcare',prompts:1},
+   {name:'Twin Compliance',prompts:1},
+  ],
+  whoWhy:[
+   {name:'Evalu-8',where:'“Best HSE / schools software UK” listicles',why:'On nearly every comparison roundup AI synthesises its answer from.',gap:'Crysp is absent from those roundups.',tags:['Listicles']},
+   {name:'Alcumus / EcoOnline',where:'“Alternatives to…” answers (G2 / Capterra)',why:'Category incumbents with dense, claimed review profiles.',gap:'Crysp’s Capterra is unclaimed (~5 reviews).',tags:['G2 / Capterra']},
+   {name:'iAM Compliant / Handsam / Smartlog',where:'Schools compliance queries',why:'Schools-niche leaders with stated install bases (Smartlog: 2,500 schools).',gap:'Crysp states no install base or sector proof.',tags:['Niche leader']},
+   {name:'Radar Healthcare / QCS',where:'CQC software queries',why:'Own the healthcare / CQC comparison space AI cites.',gap:'Crysp’s CQC page is absent from those sources.',tags:['CQC']},
+   {name:'Twin Compliance',where:'“Digital twin compliance” queries',why:'Owns the exact term Crysp innovates on.',gap:'A near-identical name outranks Crysp on its own story.',tags:['Name clash']},
+  ],
+  h2h:{rival:'Evalu-8',summary:'Appears in 3 of 7 buyer prompts. Crysp: 1, weakly.',
+   wins:['“Best health & safety compliance software UK”','“Compliance software for schools UK”','“Alternatives to Alcumus / EcoOnline”'],
+   edges:['Inclusion in the “best of” listicles AI cites for these queries','Claimed & populated Capterra / G2 review profiles','Clear sector-specific positioning pages with proof']},
+ },
+};
+
+function competitorsPanel(d){
+  const c=COMP[cur], denom=c.denom;
+  const bar=(p,you)=>`<div class="sov-bar"><i style="width:${Math.max(p/denom*100,2)}%;background:${you?C.crit:'var(--brand)'}"></i></div>`;
+  const sovRow=(x)=>`<div class="sov-row"><div class="cn">${x.name}</div>${bar(x.prompts)}<div class="sov-val">${x.prompts}/${denom} · ${Math.round(x.prompts/denom*100)}%</div></div>`;
+  const youRow=`<div class="sov-row you"><div class="cn">${d.name} (you) <span style="font-weight:500;font-size:11.5px">${c.you.note}</span></div>${bar(c.you.prompts,true)}<div class="sov-val" style="color:var(--crit)">${c.you.prompts}/${denom} · ${Math.round(c.you.prompts/denom*100)}%</div></div>`;
+  return `<div class="panel reveal" style="--d:.08s">
+    <div class="panel-h"><h2>Competitor Share of Voice</h2><p>Share of the ${denom} tracked buyer prompts where each brand is cited by AI</p><span class="pill">${denom} prompts</span></div>
+    <div class="cats">${c.sov.map(sovRow).join('')}${youRow}</div>
+  </div>
+  <div class="panel reveal" style="--d:.14s">
+    <div class="panel-h"><h2>Who AI Cites — and Why</h2><p>The brands winning the answers, and the exact gap to close</p></div>
+    <table class="ptable whytable"><thead><tr><th style="width:26%">Brand</th><th>Where cited</th><th>Why AI picks them</th><th>The gap for you</th></tr></thead><tbody>
+    ${c.whoWhy.map(w=>`<tr><td><div class="prompt-q" style="font-size:13.5px">${w.name}</div>${w.tags?`<div class="tagrow">${w.tags.map(t=>`<span class="ctag">${t}</span>`).join('')}</div>`:''}</td><td style="color:var(--ink-soft)">${w.where}</td><td style="color:var(--ink-soft)">${w.why}</td><td style="color:var(--crit)">${w.gap}</td></tr>`).join('')}
+    </tbody></table>
+  </div>
+  <div class="panel reveal" style="--d:.2s">
+    <div class="panel-h"><h2>Head-to-Head</h2><p>The sellable insight — one rival, the prompts they own, and what they have that you don’t</p></div>
+    <div class="h2h">
+      <div class="h2h-h">${c.h2h.rival} &nbsp;vs&nbsp; ${d.name}<span>${c.h2h.summary}</span></div>
+      <div class="h2h-body">
+        <div class="h2h-col"><h4>Prompts ${c.h2h.rival} wins — you’re absent</h4><ul>${c.h2h.wins.map(p=>`<li><svg viewBox="0 0 24 24" fill="none" stroke="${C.crit}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>${p}</li>`).join('')}</ul></div>
+        <div class="h2h-col"><h4>What they have that you don’t</h4><ul>${c.h2h.edges.map(e=>`<li><svg viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>${e}</li>`).join('')}</ul></div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function render(){
   const d=DATA[cur];
   let body=head(d);
   if(tab==='overview') body+=kpis(d)+catPanel(d)+promptTable(d)+FOOT;
   else if(tab==='prompts') body+=kpis(d)+promptTable(d)+FOOT;
   else if(tab==='visibility') body+=kpis(d)+catPanel(d)+FOOT;
+  else if(tab==='competitors') body+=kpis(d)+competitorsPanel(d)+FOOT;
   else if(tab==='issues') body+=kpis(d)+issuesPanel(d)+FOOT;
   else if(tab==='fixes') body+=fixesPanel(d)+FOOT;
   else if(tab==='plan') body+=planPanel(d)+FOOT;
