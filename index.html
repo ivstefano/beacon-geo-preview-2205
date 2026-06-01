@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Beacon — AI Visibility Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Hanken+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F4F1EA; --panel:#FFFFFF; --panel-2:#FBF9F4;
+    --ink:#191712; --ink-soft:#524E45; --muted:#8C8678; --hair:#E7E1D4; --hair-2:#EFEADF;
+    --brand:#0E5A4C; --brand-soft:#E4EFEA; --brand-ink:#0A3C32;
+    --crit:#B23A2E; --high:#C2710C; --med:#B59005; --good:#2E7D45; --exc:#0E5A4C;
+    --crit-bg:#F8E7E3; --high-bg:#FBEEDC; --med-bg:#F7F0D6; --good-bg:#E4F1E5;
+    --shadow:0 1px 2px rgba(25,23,18,.04), 0 8px 24px -12px rgba(25,23,18,.14);
+    --shadow-lg:0 2px 4px rgba(25,23,18,.05), 0 24px 48px -20px rgba(25,23,18,.22);
+    --r:16px; --r-sm:11px;
+    --serif:"Fraunces",Georgia,serif; --sans:"Hanken Grotesk",system-ui,sans-serif; --mono:"Spline Sans Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;
+    background-image:radial-gradient(circle at 1px 1px, rgba(25,23,18,.022) 1px, transparent 0);background-size:22px 22px}
+  ::selection{background:var(--brand);color:#fff}
+  a{color:inherit;text-decoration:none}
+  .app{display:grid;grid-template-columns:266px 1fr;min-height:100vh}
+
+  /* ---------- Sidebar ---------- */
+  .side{border-right:1px solid var(--hair);background:var(--panel-2);padding:22px 18px;display:flex;flex-direction:column;gap:26px;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:11px;padding:2px 6px}
+  .brand .mark{width:34px;height:34px;border-radius:10px;background:var(--brand);display:grid;place-items:center;color:#fff;flex:none;box-shadow:0 4px 12px -4px rgba(14,90,76,.6)}
+  .brand .mark svg{width:19px;height:19px}
+  .brand b{font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:-.02em}
+  .brand small{display:block;color:var(--muted);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin-top:-2px}
+
+  .ws-label{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 8px;margin-bottom:9px}
+  .ws{display:flex;flex-direction:column;gap:6px}
+  .ws button{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:12px;padding:9px 10px;cursor:pointer;font-family:var(--sans);font-size:14px;color:var(--ink-soft);transition:.18s}
+  .ws button:hover{background:#fff;border-color:var(--hair)}
+  .ws button.on{background:#fff;border-color:var(--hair);box-shadow:var(--shadow);color:var(--ink)}
+  .ws .fav{width:30px;height:30px;border-radius:8px;flex:none;display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:14px;color:#fff}
+  .ws .meta{min-width:0}
+  .ws .meta b{font-weight:600;font-size:13.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ws .meta span{font-size:11px;color:var(--muted)}
+  .ws .scorepip{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;padding:2px 7px;border-radius:7px}
+
+  .nav{display:flex;flex-direction:column;gap:2px}
+  .nav button{display:flex;align-items:center;gap:12px;background:transparent;border:none;border-radius:10px;padding:9px 11px;cursor:pointer;font-family:var(--sans);font-size:14px;color:var(--ink-soft);transition:.15s;width:100%;text-align:left}
+  .nav button svg{width:17px;height:17px;opacity:.7;flex:none}
+  .nav button:hover{background:#fff;color:var(--ink)}
+  .nav button.on{background:var(--brand);color:#fff}
+  .nav button.on svg{opacity:1}
+  .nav .badge{margin-left:auto;font-family:var(--mono);font-size:11px;background:rgba(255,255,255,.22);padding:1px 7px;border-radius:20px}
+  .nav button:not(.on) .badge{background:var(--hair-2);color:var(--ink-soft)}
+
+  .side-foot{margin-top:auto;padding:13px;border-radius:13px;background:linear-gradient(150deg,#10312b,#0a221d);color:#dfe9e4;font-size:12px;line-height:1.45}
+  .side-foot b{color:#fff;font-weight:600;font-family:var(--serif)}
+  .side-foot .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#5ec4a8;margin-right:6px;box-shadow:0 0 0 3px rgba(94,196,168,.2)}
+
+  /* ---------- Main ---------- */
+  .main{padding:30px 38px 64px;max-width:1180px}
+  .crumbs{font-size:12.5px;color:var(--muted);display:flex;gap:8px;align-items:center;margin-bottom:14px}
+  .crumbs .sep{opacity:.5}
+  .head{display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:26px}
+  .head h1{font-family:var(--serif);font-weight:600;font-size:30px;letter-spacing:-.02em;line-height:1.1}
+  .head .sub{color:var(--muted);font-size:13.5px;margin-top:5px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+  .head .url{color:var(--brand);font-weight:600}
+  .chip-type{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--brand-soft);color:var(--brand-ink)}
+  .head .right{margin-left:auto;display:flex;gap:9px;align-items:center}
+  .btn{font-family:var(--sans);font-size:13px;font-weight:600;border:1px solid var(--hair);background:#fff;color:var(--ink-soft);padding:8px 13px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:.15s}
+  .btn:hover{border-color:#cfc8b8;color:var(--ink)}
+  .btn svg{width:15px;height:15px}
+  .btn-primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  .btn-primary:hover{background:#0a4034;color:#fff}
+
+  /* KPI cards */
+  .kpis{display:grid;grid-template-columns:1.35fr 1fr 1fr 1fr;gap:16px;margin-bottom:14px}
+  .card{background:var(--panel);border:1px solid var(--hair);border-radius:var(--r);box-shadow:var(--shadow);padding:20px}
+  .card .klabel{font-size:13px;font-weight:600;color:var(--ink)}
+  .card .ksub{font-size:11.5px;color:var(--muted);margin-top:1px}
+  .kpi-ring{display:flex;align-items:center;gap:18px;margin-top:6px}
+  .ring{position:relative;flex:none}
+  .ring .val{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+  .ring .val b{font-family:var(--serif);font-size:27px;font-weight:600;line-height:1}
+  .ring .val span{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+  .band{font-size:12px;font-weight:700;padding:3px 9px;border-radius:8px;display:inline-block}
+  .kpi-line{margin-top:4px;font-size:12.5px;color:var(--ink-soft)}
+  .bignum{font-family:var(--serif);font-size:40px;font-weight:600;line-height:1;letter-spacing:-.02em;margin-top:12px}
+  .bignum small{font-size:16px;color:var(--muted);font-weight:500;font-family:var(--sans)}
+  .meter{height:8px;border-radius:6px;background:var(--hair-2);overflow:hidden;margin-top:13px}
+  .meter i{display:block;height:100%;border-radius:6px}
+  .pres-note{font-size:11.5px;color:var(--muted);margin-top:9px}
+
+  /* Section panels */
+  .panel{background:var(--panel);border:1px solid var(--hair);border-radius:var(--r);box-shadow:var(--shadow);margin-top:20px;overflow:hidden}
+  .panel-h{padding:18px 22px;border-bottom:1px solid var(--hair-2);display:flex;align-items:center;gap:12px}
+  .panel-h h2{font-family:var(--serif);font-weight:600;font-size:18px;letter-spacing:-.01em}
+  .panel-h p{font-size:12.5px;color:var(--muted)}
+  .panel-h .pill{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--ink-soft);background:var(--panel-2);border:1px solid var(--hair);padding:3px 10px;border-radius:20px}
+
+  /* Prompt table */
+  .ptable{width:100%;border-collapse:collapse}
+  .ptable th{text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:11px 22px;border-bottom:1px solid var(--hair-2)}
+  .ptable td{padding:15px 22px;border-bottom:1px solid var(--hair-2);vertical-align:middle}
+  .ptable tr:last-child td{border-bottom:none}
+  .ptable tbody tr{transition:background .14s}
+  .ptable tbody tr:hover{background:var(--panel-2)}
+  .prompt-q{font-weight:600;font-size:14.5px;color:var(--ink);display:flex;align-items:center;gap:9px}
+  .prompt-owner{font-size:12px;color:var(--muted);margin-top:3px}
+  .prompt-owner b{color:var(--ink-soft);font-weight:600}
+  .tchip{font-family:var(--mono);font-size:10px;font-weight:600;width:20px;height:20px;border-radius:6px;display:inline-grid;place-items:center;flex:none}
+  .vis-badge{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-weight:600;font-size:14px;border:2.5px solid}
+  .verdict{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:20px;white-space:nowrap}
+  .sev-tag{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 7px;border-radius:5px}
+
+  /* Categories */
+  .cats{padding:8px 22px 18px}
+  .catrow{display:grid;grid-template-columns:200px 1fr 54px;align-items:center;gap:16px;padding:13px 0;border-bottom:1px solid var(--hair-2)}
+  .catrow:last-child{border-bottom:none}
+  .catrow .cname{font-weight:600;font-size:14px}
+  .catrow .cw{font-size:11.5px;color:var(--muted);font-weight:500}
+  .cbar{height:10px;border-radius:6px;background:var(--hair-2);overflow:hidden}
+  .cbar i{display:block;height:100%;border-radius:6px;transform-origin:left}
+  .cscore{font-family:var(--mono);font-weight:600;font-size:15px;text-align:right}
+
+  /* Issues */
+  .iss-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:20px 22px 6px}
+  .iss-stat{border:1px solid var(--hair);border-radius:13px;padding:15px;text-align:center}
+  .iss-stat b{font-family:var(--serif);font-size:32px;font-weight:600;display:block;line-height:1}
+  .iss-stat span{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+  .iss-list{padding:6px 22px 18px}
+  .iss-item{display:flex;gap:13px;padding:13px 0;border-bottom:1px solid var(--hair-2)}
+  .iss-item:last-child{border-bottom:none}
+  .iss-item .num{font-family:var(--mono);color:var(--muted);font-size:13px;font-weight:600;flex:none;width:22px}
+  .iss-item .txt{font-size:13.5px;color:var(--ink-soft);line-height:1.5}
+  .iss-item .txt b{color:var(--ink);font-weight:600}
+
+  /* Action plan */
+  .weeks{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;padding:20px 22px}
+  .week{border:1px solid var(--hair);border-radius:14px;padding:17px 18px;background:var(--panel-2)}
+  .week h3{font-family:var(--serif);font-size:15px;font-weight:600;margin-bottom:3px}
+  .week .wk{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);font-weight:700}
+  .week ul{list-style:none;margin-top:11px;display:flex;flex-direction:column;gap:9px}
+  .week li{display:flex;gap:9px;font-size:13px;color:var(--ink-soft);line-height:1.45}
+  .week li svg{width:15px;height:15px;flex:none;margin-top:2px;color:var(--brand)}
+
+  .wins{padding:18px 22px;display:flex;flex-direction:column;gap:11px}
+  .win{display:flex;gap:12px;align-items:flex-start}
+  .win .n{width:24px;height:24px;border-radius:8px;background:var(--brand-soft);color:var(--brand-ink);font-family:var(--mono);font-weight:600;font-size:12px;display:grid;place-items:center;flex:none}
+  .win p{font-size:13.5px;color:var(--ink-soft)}
+  .win p b{color:var(--ink);font-weight:600}
+
+  .foot{margin-top:30px;font-size:11.5px;color:var(--muted);line-height:1.6;border-top:1px solid var(--hair);padding-top:16px}
+  .foot b{color:var(--ink-soft)}
+
+  .reveal{opacity:0;transform:translateY(10px);animation:rise .55s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:var(--d,0s)}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .hide{display:none!important}
+
+  @media(max-width:920px){
+    .app{grid-template-columns:1fr}
+    .side{position:static;height:auto;flex-direction:column}
+    .kpis{grid-template-columns:1fr 1fr}
+    .weeks,.iss-grid{grid-template-columns:1fr 1fr}
+    .main{padding:24px 18px 50px}
+    .catrow{grid-template-columns:130px 1fr 44px}
+  }
+</style>
+</head>
+<body>
+
+<div id="gate" style="position:fixed;inset:0;z-index:99999;background:linear-gradient(160deg,#10312b,#081915);display:grid;place-items:center;font-family:system-ui,sans-serif">
+  <div style="text-align:center;color:#e9efea;max-width:360px;padding:28px">
+    <div style="width:48px;height:48px;border-radius:13px;background:#5ec4a8;display:grid;place-items:center;margin:0 auto 16px;font-family:Georgia,serif;font-weight:800;font-size:24px;color:#081915">B</div>
+    <div style="font-family:Georgia,serif;font-size:26px;font-weight:600">Beacon</div>
+    <div style="font-size:12px;color:#7fb8a8;margin:4px 0 24px;letter-spacing:.16em;text-transform:uppercase">AI Visibility · Client Preview</div>
+    <input id="pw" type="password" placeholder="Access password" autofocus style="width:100%;padding:12px 15px;border-radius:11px;border:1px solid #2c5c52;background:#0a221d;color:#fff;font-size:15px;outline:none;box-sizing:border-box">
+    <button id="go" style="width:100%;margin-top:11px;padding:12px;border-radius:11px;border:none;background:#5ec4a8;color:#081915;font-weight:700;font-size:15px;cursor:pointer">View report</button>
+    <div id="err" style="color:#e07d6c;font-size:12.5px;margin-top:11px;height:15px"></div>
+  </div>
+</div>
+<script>
+(function(){var PW="eva2026";
+function go(){var v=document.getElementById("pw").value;if(v===PW){document.getElementById("gate").style.display="none";try{sessionStorage.setItem("bk","1")}catch(e){}}else{document.getElementById("err").textContent="Incorrect password"}}
+document.getElementById("go").addEventListener("click",go);
+document.getElementById("pw").addEventListener("keydown",function(e){if(e.key==="Enter")go()});
+try{if(sessionStorage.getItem("bk")==="1")document.getElementById("gate").style.display="none"}catch(e){}
+})();
+</script>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="brand">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></div>
+      <div><b>Beacon</b><small>AI Visibility</small></div>
+    </div>
+
+    <div>
+      <div class="ws-label">Client workspaces</div>
+      <div class="ws" id="ws"></div>
+    </div>
+
+    <nav>
+      <div class="ws-label">Monitor</div>
+      <div class="nav" id="nav"></div>
+    </nav>
+
+    <div class="side-foot">
+      <span class="dot"></span><b>Live monitoring</b> would re-run these prompts across ChatGPT, Perplexity, Gemini &amp; AI Overviews daily — flat rate, all LLMs. <em style="opacity:.7">Prototype · placeholder brand.</em>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="main"></main>
+</div>
+
+<script>
+const C = {
+  crit:'#B23A2E', high:'#C2710C', med:'#B59005', good:'#2E7D45', exc:'#0E5A4C', mut:'#8C8678'
+};
+// score -> color & band
+function scoreColor(s){ if(s>=75)return C.good; if(s>=60)return '#5C8A2E'; if(s>=40)return C.high; return C.crit; }
+function bandFor(s){ if(s>=90)return['Excellent','#E4F1E5',C.good]; if(s>=75)return['Good','#E4F1E5',C.good];
+  if(s>=60)return['Fair','#F2F2D9','#7A7A12']; if(s>=40)return['Poor','#FBEEDC',C.high]; return['Critical','#F8E7E3',C.crit]; }
+const TYPE = {C:['C','#C2710C','#FBEEDC'],I:['I','#2E6E7D','#DDEEF1'],B:['B','#0E5A4C','#E4EFEA'],X:['X','#7A4FB5','#ECE3F7']};
+const TYPE_NAME = {C:'Commercial',I:'Informational',B:'Branded',X:'Comparison'};
+const VERD = {Missing:[C.crit,'#F8E7E3'],Weak:[C.high,'#FBEEDC'],Partial:['#9A7A05','#F7F0D6'],Cited:[C.good,'#E4F1E5']};
+const SEV = {Critical:[C.crit,'#F8E7E3'],High:[C.high,'#FBEEDC'],Medium:[C.med,'#F7F0D6'],Low:[C.mut,'#EFEAE0']};
+
+const DATA = {
+ ebj:{
+  name:'Events by James', fav:'EJ', favbg:'#9A6A3C', url:'eventsbyjames.com',
+  type:'Luxury Wedding Planner · London', lastRun:'1 Jun 2026',
+  geo:47, presence:6, prompts7:7,
+  cats:[['AI Citability',52,25],['Brand Authority',22,20],['Content E-E-A-T',61,20],['Technical GEO',68,15],['Schema & Structured Data',31,10],['Platform Optimization',41,10]],
+  prompts:[
+   {q:'Best luxury wedding planners in London',t:'C',owner:'One Oake · Sarah Haywood · Planned for Perfection',v:0,verdict:'Missing',sev:'Critical'},
+   {q:'How much does a London wedding planner cost?',t:'C',owner:'Emma Reeve · One Oake · BusyBrides',v:0,verdict:'Missing',sev:'High'},
+   {q:'Mayfair wedding planner recommendations',t:'C',owner:'The May Fair Hotel · Sarah Haywood · Luxus Events',v:0,verdict:'Missing',sev:'High'},
+   {q:'Who planned the Tatler-featured London weddings?',t:'I',owner:'Alice Wilkes · Snapdragon · Sarah Haywood',v:0,verdict:'Missing',sev:'Critical'},
+   {q:'Best planner for a historic London venue wedding',t:'C',owner:'Venue pages · Tagvenue · WeddingWire',v:32,verdict:'Partial',sev:'Medium'},
+   {q:'Luxury London & Europe destination planner reviews',t:'C',owner:'THE WED · SheerLuxe · Junebug',v:0,verdict:'Missing',sev:'High'},
+   {q:'Events by James reviews — is it any good?',t:'B',owner:'Only owned site / Instagram / Threads',v:12,verdict:'Weak',sev:'High'},
+  ],
+  iss:{Critical:3,High:4,Medium:4,Low:4},
+  issues:[
+   ['Critical','No off-site authority footprint','Not found on Wikipedia, Reddit, or any wedding directory (Bridebook / Hitched / Junebug). ~70% of the GEO upside sits here — it is why the brand wins 0 of 7 prompts.'],
+   ['Critical','The Tatler feature is unverifiable','A bare on-site claim with no date, deep-link or screenshot — AI will not treat an unsubstantiated first-party claim as authority.'],
+   ['Critical','Zero structured data on the Showit front-end','No Organization, LocalBusiness, Service or Person schema — the brand has no machine-readable identity outside the blog.'],
+   ['High','The cost prompt is unowned','No dedicated "How much does a London wedding planner cost" guide despite having the £9,000+VAT figures on hand.'],
+   ['High','Core pages are in no sitemap','page-sitemap lists only the homepage + an orphan /sample-page/. Every service/venue/about page is absent — discovery relies on internal links alone.'],
+   ['High','No attributed testimonials, no contact NAP','Zero named social proof and no phone/address on a £9k+ purchase — a trust gap for buyers and AI alike.'],
+   ['Medium','No FAQPage schema','Wedding queries are highly FAQ-shaped; an existing "Is a wedding planner worth it" post is ready to convert.'],
+   ['Medium','Blog stalled ~12 months','Newest post May 2025; "2025 trends" posts now date the site on a freshness-sensitive topic.'],
+  ],
+  wins:[
+   '<b>Add Organization + LocalBusiness JSON-LD</b> site-wide via Showit head code — highest-impact single fix.',
+   '<b>Publish a "London wedding planner cost" guide</b> in answer-block format using the £9,000+VAT / £6,000 figures.',
+   '<b>Create Bridebook, Hitched, Junebug & WeddingWire profiles</b> — the review-bearing directories AI actually cites.',
+   '<b>Surface a live, indexable Tatler link</b> to replace the invisible on-site badge.',
+   '<b>Add per-page meta descriptions + full Open Graph</b> to all Showit pages; delete the orphan /sample-page/.',
+  ],
+  weeks:[
+   ['Week 1','Machine-readable identity',['Publish Organization + LocalBusiness + Service + Person JSON-LD','Add FAQPage schema to the service FAQ & "worth it" post','Per-page meta descriptions + OG/Twitter tags; fix canonicals']],
+   ['Week 2','Own the commercial answers',['Ship the "wedding planner cost" answer-block guide','Add an entity-defining homepage block; claim Mayfair/central London','Lead venue pages with a 2-sentence factual answer block']],
+   ['Week 3','Build off-site authority',['Create Bridebook / Hitched / Junebug / WeddingWire profiles + reviews','Secure an indexable press/Tatler URL; pitch "best London planner" lists','Stand up LinkedIn company page + YouTube presence']],
+   ['Week 4','Trust & freshness',['Add attributed testimonials (name, venue, date)','Add contact NAP; refresh/redirect 2025 posts; restart blog','Add security headers via Cloudflare; publish /llms.txt']],
+  ],
+ },
+ crysp:{
+  name:'Crysp', fav:'Cr', favbg:'#2E6E7D', url:'crysp.co.uk',
+  type:'B2B Compliance SaaS · UK', lastRun:'1 Jun 2026',
+  geo:51, presence:8, prompts7:7,
+  cats:[['AI Citability',48,25],['Brand Authority',34,20],['Content E-E-A-T',61,20],['Technical GEO',74,15],['Schema & Structured Data',31,10],['Platform Optimization',62,10]],
+  prompts:[
+   {q:'Best health & safety compliance software UK 2026',t:'C',owner:'SmartQHSE · SafetyCulture · Alcumus · Evalu-8',v:0,verdict:'Missing',sev:'Critical'},
+   {q:'Compliance software for schools UK',t:'C',owner:'iAM Compliant · Handsam · Smartlog · IRIS',v:45,verdict:'Partial',sev:'High'},
+   {q:'Best fire risk assessment software UK',t:'C',owner:'FireHub · Ramage · RiskBase',v:0,verdict:'Missing',sev:'Medium'},
+   {q:'Property / building compliance software UK',t:'C',owner:'PRISM · True Compliance · Riskhub',v:0,verdict:'Missing',sev:'Critical'},
+   {q:'Alternatives to Alcumus / EcoOnline EHS',t:'X',owner:'Evalu-8 · Sphera · Cority (via G2 / Capterra)',v:0,verdict:'Missing',sev:'High'},
+   {q:'CQC compliance software UK',t:'C',owner:'Radar Healthcare · QCS · GoAudits',v:10,verdict:'Weak',sev:'High'},
+   {q:'Digital twin compliance platform UK',t:'I',owner:'Twin Compliance · Evident · Twinview',v:0,verdict:'Missing',sev:'High'},
+  ],
+  iss:{Critical:4,High:5,Medium:4,Low:4},
+  issues:[
+   ['Critical','Absent from comparison listicles','The "Best HSE / schools / property compliance software" roundups are the AI answer for prompts 1, 2 & 4 — Crysp is in almost none of them.'],
+   ['Critical','No SoftwareApplication schema','AI has no machine-readable signal that Crysp is a software product; the only schema is 3 thin Squarespace defaults (incl. a misapplied LocalBusiness).'],
+   ['Critical','Named experts absent from core pages','/who-we-are never mentions CTO David McKee — the strongest expertise signal — and carries no Person schema.'],
+   ['Critical','Zero quantified outcomes in case studies','The flagship EDF / Hinkley study (named quotes) has no %, hours saved or document counts — nothing for AI to extract.'],
+   ['High','Thin, unclaimed review profiles','Capterra ~5 reviews; near-empty TrustRadius → never qualifies for "alternatives to" answers.'],
+   ['High','Organization.sameAs is empty','AI cannot connect Crysp to LinkedIn / Companies House / Crunchbase.'],
+   ['High','No FAQPage schema or on-page FAQ','The most-quoted format in AI Overviews & Perplexity is missing everywhere.'],
+   ['High','No regulatory grounding on sector pages','/schools cites no HSWA 1974, RRFSO 2005, COSHH or DfE guidance — buyer questions go unanswered in extractable form.'],
+  ],
+  wins:[
+   '<b>Add SoftwareApplication + rich Organization JSON-LD</b> site-wide via Code Injection — highest-impact fix.',
+   '<b>Claim the Capterra profile</b> (+ G2, Software Advice, GetApp) and start a review drive — target 20+.',
+   '<b>Add quantified outcomes</b> to the EDF / Trinity / Carlton case studies.',
+   '<b>Add FAQPage schema + visible FAQ</b> to homepage, sector pages and pricing.',
+   '<b>Populate Organization.sameAs</b> with LinkedIn, Companies House, Crunchbase.',
+  ],
+  weeks:[
+   ['Week 1','Machine-readable identity',['Deploy SoftwareApplication + rich Organization JSON-LD; populate sameAs','Replace misapplied LocalBusiness; add BreadcrumbList','Fix indexation: 301 /home, /whoweare, /home-3; confirm AI toggle OFF']],
+   ['Week 2','Make assets citable',['Add 2–4 metrics + quotes to each case study; mark up Review','Surface CTO David McKee + leadership bios with Person schema','Add named-regulation answer blocks + FAQPage to /schools']],
+   ['Week 3','Win third-party space',['Pitch inclusion in HSE / schools / property roundups with a fact sheet','Saturate Capterra / G2 / GetApp + review drive','Own "digital twin compliance" in trade press (vs the same-named rival)']],
+   ['Week 4','Polish & trust',['Replace marketing H1s with query-matched headings; add update dates','Publish pricing signal + cost FAQ; set lang=en-GB; publish /llms.txt','Mitigate security headers via a Cloudflare proxy']],
+  ],
+ },
+};
+
+const NAV = [
+  ['overview','Overview','M3 12l2-2 4 4 8-8 2 2'],
+  ['prompts','AI-Answer Prompts','M4 6h16M4 12h16M4 18h10'],
+  ['visibility','Visibility Breakdown','M4 19V5m6 14V9m6 10V13'],
+  ['issues','Issues','M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3l-8-14a2 2 0 00-3.4 0z'],
+  ['plan','30-Day Plan','M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11'],
+];
+
+let cur='ebj', tab='overview';
+
+function ringSVG(score,size=88,sw=9){
+  const r=(size-sw)/2, c=2*Math.PI*r, off=c*(1-score/100), col=scoreColor(score);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#EFEADF" stroke-width="${sw}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round"
+      stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 ${size/2} ${size/2})"/>
+  </svg>`;
+}
+function visBadge(v){const col=scoreColor(v);return `<span class="vis-badge" style="border-color:${col};color:${col}">${v}</span>`;}
+
+function renderSidebar(){
+  document.getElementById('ws').innerHTML = Object.entries(DATA).map(([k,d])=>{
+    const [bandTxt,bg,fg]=bandFor(d.geo);
+    return `<button class="${k===cur?'on':''}" onclick="setSite('${k}')">
+      <span class="fav" style="background:${d.favbg}">${d.fav}</span>
+      <span class="meta"><b>${d.name}</b><span>${d.url}</span></span>
+      <span class="scorepip" style="background:${bg};color:${fg}">${d.geo}</span>
+    </button>`;}).join('');
+  document.getElementById('nav').innerHTML = NAV.map(([id,label,path])=>`
+    <button class="${id===tab?'on':''}" onclick="setTab('${id}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>
+      ${label}${id==='prompts'?`<span class="badge">${DATA[cur].prompts7}</span>`:''}${id==='issues'?`<span class="badge">${Object.values(DATA[cur].iss).reduce((a,b)=>a+b,0)}</span>`:''}
+    </button>`).join('');
+}
+
+function head(d){
+  const [bandTxt,bg,fg]=bandFor(d.geo);
+  return `<div class="crumbs reveal"><span>Client workspaces</span><span class="sep">›</span><span>${d.name}</span><span class="sep">›</span><span style="color:var(--ink)">${NAV.find(n=>n[0]===tab)[1]}</span></div>
+  <div class="head reveal" style="--d:.04s">
+    <div>
+      <h1>${d.name}<span style="color:${fg};font-size:.6em;vertical-align:middle;margin-left:12px;background:${bg};padding:4px 11px;border-radius:9px">${d.geo} · ${bandTxt}</span></h1>
+      <div class="sub"><span class="chip-type">${d.type}</span><span>·</span><span class="url">${d.url}</span><span>·</span><span>Last run ${d.lastRun}</span></div>
+    </div>
+    <div class="right">
+      <button class="btn" onclick="window.print()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>Export PDF</button>
+      <button class="btn btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Re-run monitor</button>
+    </div>
+  </div>`;
+}
+
+function kpis(d){
+  const [bandTxt,bg,fg]=bandFor(d.geo);
+  const cited = d.prompts.filter(p=>p.v>=40).length;
+  return `<div class="kpis">
+    <div class="card reveal" style="--d:.08s">
+      <div class="klabel">GEO Visibility Score</div>
+      <div class="ksub">Composite citability across 6 dimensions</div>
+      <div class="kpi-ring">
+        <div class="ring">${ringSVG(d.geo)}<div class="val"><b>${d.geo}</b><span>/ 100</span></div></div>
+        <div><span class="band" style="background:${bg};color:${fg}">${bandTxt}</span>
+        <div class="kpi-line">How likely AI engines are to cite this brand.</div></div>
+      </div>
+    </div>
+    <div class="card reveal" style="--d:.12s">
+      <div class="klabel">AI Answer Presence</div>
+      <div class="ksub">Share of monitored prompts where cited</div>
+      <div class="bignum" style="color:${scoreColor(d.presence)}">${d.presence}<small>%</small></div>
+      <div class="meter"><i style="width:${Math.max(d.presence,2)}%;background:${scoreColor(d.presence)}"></i></div>
+      <div class="pres-note">Strongly cited in <b>${cited}</b> of ${d.prompts7} buyer prompts.</div>
+    </div>
+    <div class="card reveal" style="--d:.16s">
+      <div class="klabel">Prompts Monitored</div>
+      <div class="ksub">High-intent buyer queries</div>
+      <div class="bignum">${d.prompts7}</div>
+      <div class="pres-note">Across ChatGPT, Perplexity,<br>Gemini &amp; AI Overviews.</div>
+    </div>
+    <div class="card reveal" style="--d:.2s">
+      <div class="klabel">Open Issues</div>
+      <div class="ksub">Prioritised fixes</div>
+      <div class="bignum" style="color:${C.crit}">${d.iss.Critical}<small> critical</small></div>
+      <div class="pres-note">${d.iss.High} high · ${d.iss.Medium} medium · ${d.iss.Low} low</div>
+    </div>
+  </div>`;
+}
+
+function promptTable(d){
+  return `<div class="panel reveal" style="--d:.24s">
+    <div class="panel-h"><h2>AI-Answer Prompts</h2><p>Where this brand shows up when buyers ask AI</p><span class="pill">${d.prompts7} prompts</span></div>
+    <table class="ptable"><thead><tr><th>Buyer prompt &amp; who owns the AI answer</th><th>Intent</th><th style="text-align:center">Visibility</th><th>Verdict</th></tr></thead><tbody>
+    ${d.prompts.map(p=>{const [tc,col,bgc]=TYPE[p.t];const [vc,vbg]=VERD[p.verdict];const [sc,sbg]=SEV[p.sev];return `
+      <tr>
+        <td><div class="prompt-q">${p.q}</div><div class="prompt-owner">Currently cited: <b>${p.owner}</b></div></td>
+        <td><span class="tchip" style="color:${col};background:${bgc}" title="${TYPE_NAME[p.t]}">${tc}</span></td>
+        <td style="text-align:center">${visBadge(p.v)}</td>
+        <td><span class="verdict" style="color:${vc};background:${vbg}">${p.verdict}</span> <span class="sev-tag" style="color:${sc};background:${sbg}">${p.sev}</span></td>
+      </tr>`;}).join('')}
+    </tbody></table>
+  </div>`;
+}
+
+function catPanel(d){
+  return `<div class="panel reveal" style="--d:.24s">
+    <div class="panel-h"><h2>Visibility Breakdown</h2><p>The six dimensions behind the GEO score</p><span class="pill">weighted composite</span></div>
+    <div class="cats">${d.cats.map(([n,s,w])=>`
+      <div class="catrow">
+        <div><div class="cname">${n}</div><div class="cw">${w}% weight</div></div>
+        <div class="cbar"><i style="width:${s}%;background:${scoreColor(s)}"></i></div>
+        <div class="cscore" style="color:${scoreColor(s)}">${s}</div>
+      </div>`).join('')}</div>
+  </div>`;
+}
+
+function issuesPanel(d){
+  const order={Critical:0,High:1,Medium:2,Low:3};
+  return `<div class="panel reveal" style="--d:.24s">
+    <div class="panel-h"><h2>Issues by Severity</h2><p>What's blocking AI citations</p></div>
+    <div class="iss-grid">
+      ${['Critical','High','Medium','Low'].map(s=>{const[c,bg]=SEV[s];return `<div class="iss-stat" style="background:${bg}"><b style="color:${c}">${d.iss[s]}</b><span style="color:${c}">${s}</span></div>`;}).join('')}
+    </div>
+    <div class="iss-list">${d.issues.sort((a,b)=>order[a[0]]-order[b[0]]).map((it,i)=>{const[c,bg]=SEV[it[0]];return `
+      <div class="iss-item"><div class="num">${String(i+1).padStart(2,'0')}</div><div class="txt"><span class="sev-tag" style="color:${c};background:${bg};margin-right:8px">${it[0]}</span><b>${it[1]}.</b> ${it[2]}</div></div>`;}).join('')}</div>
+  </div>`;
+}
+
+function planPanel(d){
+  return `<div class="panel reveal" style="--d:.24s">
+    <div class="panel-h"><h2>Quick Wins</h2><p>Implement this week</p></div>
+    <div class="wins">${d.wins.map((w,i)=>`<div class="win"><span class="n">${i+1}</span><p>${w}</p></div>`).join('')}</div>
+  </div>
+  <div class="panel reveal" style="--d:.28s">
+    <div class="panel-h"><h2>30-Day Action Plan</h2><p>From machine-readable identity → off-site authority</p></div>
+    <div class="weeks">${d.weeks.map(([wk,h,items])=>`
+      <div class="week"><div class="wk">${wk}</div><h3>${h}</h3><ul>${items.map(it=>`<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>${it}</li>`).join('')}</ul></div>`).join('')}</div>
+  </div>`;
+}
+
+const FOOT = `<div class="foot reveal" style="--d:.32s"><b>How to read this.</b> "AI Answer Presence" is the share of high-intent buyer prompts where the brand is actually cited by AI engines today — the single number that says "are my clients showing up." The GEO Visibility Score is the composite of six citability dimensions. <br><b>Methodology.</b> Prompt visibility derived from live SERP/answer-source analysis (which pages AI synthesises from) on 1 Jun 2026; in production this is replaced by direct daily LLM querying. A prototype built from real audit data — brand &amp; UI are placeholders.</div>`;
+
+function render(){
+  const d=DATA[cur];
+  let body=head(d);
+  if(tab==='overview') body+=kpis(d)+catPanel(d)+promptTable(d)+FOOT;
+  else if(tab==='prompts') body+=kpis(d)+promptTable(d)+FOOT;
+  else if(tab==='visibility') body+=kpis(d)+catPanel(d)+FOOT;
+  else if(tab==='issues') body+=kpis(d)+issuesPanel(d)+FOOT;
+  else if(tab==='plan') body+=planPanel(d)+FOOT;
+  document.getElementById('main').innerHTML=body;
+  renderSidebar();
+}
+function setSite(k){cur=k;render();window.scrollTo(0,0);}
+function setTab(t){tab=t;render();window.scrollTo(0,0);}
+render();
+</script>
+</body>
+</html>
