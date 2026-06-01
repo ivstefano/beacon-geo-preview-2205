@@ -192,6 +192,23 @@
   .h2h-col li{font-size:13px;color:var(--ink-soft);display:flex;gap:8px;line-height:1.45}
   .h2h-col li svg{width:15px;height:15px;flex:none;margin-top:2px}
   @media(max-width:920px){.h2h-body{grid-template-columns:1fr}.sov-row{grid-template-columns:120px 1fr 64px}}
+  /* Prompt Discovery */
+  .disc-seed{display:flex;gap:10px;padding:16px 22px;border-bottom:1px solid var(--hair-2)}
+  .disc-seed input{flex:1;padding:11px 14px;border:1px solid var(--hair);border-radius:10px;font-family:var(--sans);font-size:14px;color:var(--ink);background:#fff;outline:none}
+  .disc-seed input:focus{border-color:var(--brand)}
+  .disc-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:18px 22px}
+  .disc-cat h4{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+  .disc-cat h4 span{font-family:var(--mono);background:var(--hair-2);color:var(--ink-soft);border-radius:20px;padding:0 7px;font-size:11px}
+  .chips{display:flex;flex-direction:column;gap:7px}
+  .chip{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;background:var(--panel-2);border:1px solid var(--hair);border-radius:9px;padding:8px 11px;cursor:pointer;font-family:var(--sans);font-size:13px;color:var(--ink-soft);transition:.14s}
+  .chip:hover{border-color:#cfc8b8;color:var(--ink)}
+  .chip .plus{font-family:var(--mono);color:var(--muted);font-weight:600}
+  .chip.on{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-ink)}
+  .chip.on .plus{font-size:0}
+  .chip.on .plus::after{content:'✓';font-size:13px;color:var(--brand)}
+  .disc-foot{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-top:1px solid var(--hair-2)}
+  .disc-foot #selnote{font-size:13px;color:var(--ink-soft);font-weight:600}
+  @media(max-width:920px){.disc-grid{grid-template-columns:1fr}}
   .foot{margin-top:30px;font-size:11.5px;color:var(--muted);line-height:1.6;border-top:1px solid var(--hair);padding-top:16px}
   .foot b{color:var(--ink-soft)}
 
@@ -550,8 +567,10 @@ Disallow: /*?max_price=`},
 const NAV = [
   ['overview','Overview','M3 12l2-2 4 4 8-8 2 2'],
   ['prompts','AI-Answer Prompts','M4 6h16M4 12h16M4 18h10'],
+  ['discover','Prompt Discovery','M11 3a8 8 0 105.3 14l4.4 4.4 1.4-1.4-4.4-4.4A8 8 0 0011 3z'],
   ['visibility','Visibility Breakdown','M4 19V5m6 14V9m6 10V13'],
   ['competitors','Competitors','M17 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9.5 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75'],
+  ['citations','Citation Opportunities','M10 13a5 5 0 007 0l3-3a5 5 0 00-7-7l-1 1M14 11a5 5 0 00-7 0l-3 3a5 5 0 007 7l1-1'],
   ['issues','Issues','M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 004 21h16a2 2 0 001.7-3l-8-14a2 2 0 00-3.4 0z'],
   ['fixes','Fixes & Artifacts','M14.7 6.3a4 4 0 00-5.2 5.2L3 18v3h3l6.5-6.5a4 4 0 005.2-5.2l-2.8 2.8-2-2 2.8-2.8z'],
   ['plan','30-Day Plan','M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11'],
@@ -811,13 +830,98 @@ function competitorsPanel(d){
   </div>`;
 }
 
+// ---- Prompt Discovery (interactive mock) ----
+const DISCOVERY = {
+ ebj:{seed:'wedding planner london',buckets:{
+   Questions:['how much does a london wedding planner cost','what does a destination wedding planner do','is a wedding planner worth it','how far in advance to book a wedding planner'],
+   Prepositions:['wedding planner for a destination wedding','wedding planner with venue sourcing','wedding planner near Mayfair','wedding planner for US couples'],
+   Comparisons:['wedding planner vs venue coordinator','full vs partial wedding planning','wedding planner or DIY'],
+   Related:['luxury wedding planner london','destination wedding planner uk','historic venue wedding london','tatler wedding planners'],
+ }},
+ crysp:{seed:'compliance software',buckets:{
+   Questions:['what is compliance management software','how much does compliance software cost','how to manage health & safety compliance','what software do schools use for compliance'],
+   Prepositions:['compliance software for schools','compliance software for property managers','compliance software with consultancy','compliance software for CQC'],
+   Comparisons:['Alcumus vs EcoOnline','compliance software vs spreadsheets','Evalu-8 alternatives'],
+   Related:['health & safety software UK','fire risk assessment software','digital twin compliance','academy trust compliance software'],
+ }},
+ vitalis:{seed:'хранителни добавки',buckets:{
+   Questions:['какво лекува ашваганда','колко време се пие спирулина','какво се пие при подагра','кои добавки са важни за ставите'],
+   Prepositions:['добавки за стави','добавки за стрес','омега 3 за сърце','магнезий за сън'],
+   Comparisons:['колаген или хиалуронова киселина','ашваганда или родиола','глюкозамин или колаген за стави'],
+   Related:['най-добрите добавки за имунитет','витамини за енергия','адаптогени','пробиотици'],
+ }},
+};
+
+// ---- Citation Opportunities (real, from the audits) ----
+const CITEOPP = {
+ ebj:[
+   {source:'Hitched.co.uk — “10 Best Wedding Planners in London”',comps:['Sarah Haywood','Wonderlust','+ every cited brand'],action:'Optimise the existing Hitched profile + pitch editorial inclusion',sev:'Critical',why:'The #1 source ChatGPT & Perplexity cite for this query'},
+   {source:'The Wed — “Best UK Wedding Planners”',comps:['NIEMIERKO','Sarah Haywood'],action:'Pitch the editorial team with a US-couples angle',sev:'Critical'},
+   {source:'Junebug Weddings best-of lists',comps:['One Oake','Planned for Perfection'],action:'Submit a real wedding + request inclusion',sev:'High'},
+   {source:'Bridebook directory profile',comps:['most London planners'],action:'Create a complete, review-bearing profile',sev:'High'},
+   {source:'Tatler Bridal Address Book',comps:['NIEMIERKO','Alice Wilkes'],action:'Secure an indexable listing — the on-site “as seen in Tatler” is invisible to AI',sev:'Medium'},
+   {source:'r/BigBudgetBrides (Reddit — cited by Google AI)',comps:['discussed in threads'],action:'Genuine participation from a personal account',sev:'Medium'},
+ ],
+ crysp:[
+   {source:'Capterra (Safety/Compliance category)',comps:['Evalu-8','Alcumus','+ all'],action:'Claim the profile (5 reviews, unclaimed) + drive 20+ reviews',sev:'Critical',why:'“Alternatives to” answers are built from Capterra/G2'},
+   {source:'G2 (compliance category)',comps:['most competitors'],action:'Create a listing and seed reviews',sev:'Critical'},
+   {source:'SmartQHSE — “Best HSE Software UK”',comps:['SmartQHSE','SafetyCulture','Evalu-8'],action:'Outreach to the author (fact sheet + EDF/Hinkley proof)',sev:'Critical'},
+   {source:'Evalu-8 — “Best school H&S software”',comps:['Evalu-8','iAM Compliant'],action:'Pitch inclusion — schools is your best vertical',sev:'High'},
+   {source:'Software Advice / GetApp',comps:['listed competitors'],action:'Claim and complete the listings',sev:'High'},
+   {source:'Radar / QCS — CQC software roundups',comps:['Radar Healthcare','QCS'],action:'Pitch the healthcare-compliance roundups',sev:'Medium'},
+ ],
+ vitalis:[
+   {source:'natu.care — “ТОП” ranking articles',comps:['cited across most queries'],action:'Pitch a guest/expert contribution or comparison',sev:'High',why:'Info-authority AI treats as an answer source'},
+   {source:'dobavki.org / hranitelnidobavki.bg',comps:['most BG brands'],action:'Expand listings (HiVital only partially present)',sev:'High'},
+   {source:'eMAG marketplace',comps:['competitor brands'],action:'List products under the HiVital brand',sev:'Medium'},
+   {source:'Google Business + Trustpilot',comps:['rivals with review presence'],action:'Seed reviews — AI extracts sentiment even without links',sev:'Medium'},
+   {source:'BG health media (offnews / mrvit — gout, weight-loss)',comps:['cited for “how to cure” queries'],action:'Contributed expert content / PR',sev:'Medium'},
+   {source:'vitamag.bg / forlife.bg guides',comps:['retailer-publishers'],action:'Comparison or sponsored guide placement',sev:'Low'},
+ ],
+};
+
+window.__sel = window.__sel || new Set();
+function toggleChip(el,txt){ if(el.classList.toggle('on')) window.__sel.add(txt); else window.__sel.delete(txt); const n=document.getElementById('selnote'); if(n) n.textContent=window.__sel.size+' selected'; }
+function mockDiscover(btn){ const o=btn.textContent; btn.textContent='Discovered ✓'; setTimeout(function(){btn.textContent=o;},1300); }
+function mockAdd(){ const n=document.getElementById('selnote'); if(!window.__sel.size){ if(n) n.textContent='Select a few prompts first'; return; } if(n) n.textContent='✓ '+window.__sel.size+' prompts added to the monitor (prototype)'; }
+
+function discoveryPanel(){
+  const x=DISCOVERY[cur];
+  const cat=(name,arr)=>`<div class="disc-cat"><h4>${name} <span>${arr.length}</span></h4><div class="chips">${arr.map(p=>`<button class="chip" onclick="toggleChip(this,'${p.replace(/'/g,"\\'")}')">${p}<span class="plus">+</span></button>`).join('')}</div></div>`;
+  return `<div class="panel reveal" style="--d:.08s">
+    <div class="panel-h"><h2>Prompt Discovery</h2><p>Seed a keyword → prompt ideas (AnswerThePublic-style) → add to the monitor</p><span class="pill">prototype</span></div>
+    <div class="disc-seed"><input id="seed" value="${x.seed}" /><button class="btn btn-primary" onclick="mockDiscover(this)">Discover prompts</button></div>
+    <div class="disc-grid">${cat('Questions',x.buckets.Questions)}${cat('Prepositions',x.buckets.Prepositions)}${cat('Comparisons',x.buckets.Comparisons)}${cat('Related',x.buckets.Related)}</div>
+    <div class="disc-foot"><span id="selnote">0 selected</span><button class="btn btn-primary" onclick="mockAdd()">+ Add selected to monitor</button></div>
+  </div>`;
+}
+
+function citationsPanel(){
+  const items=CITEOPP[cur];
+  return `<div class="panel reveal" style="--d:.24s">
+    <div class="panel-h"><h2>Citation Opportunities</h2><p>Sources where rivals are cited and you’re not — your outreach list</p><span class="pill">${items.length} targets</span></div>
+    <table class="ptable"><thead><tr><th style="width:30%">Source</th><th>Rivals listed there</th><th>You</th><th>Recommended outreach</th><th>Impact</th></tr></thead><tbody>
+    ${items.map(it=>{const[sc,sbg]=SEV[it.sev];return `<tr>
+      <td><div class="prompt-q" style="font-size:13.5px">${it.source}</div>${it.why?`<div class="prompt-owner">${it.why}</div>`:''}</td>
+      <td style="font-size:12.5px;color:var(--ink-soft)">${it.comps.join(', ')}</td>
+      <td><span class="verdict" style="color:${C.crit};background:#F8E7E3">Not listed</span></td>
+      <td style="font-size:12.5px;color:var(--ink-soft)">${it.action}</td>
+      <td><span class="sev-tag" style="color:${sc};background:${sbg}">${it.sev}</span></td>
+    </tr>`;}).join('')}
+    </tbody></table>
+  </div>`;
+}
+
 function render(){
+  window.__sel = new Set();
   const d=DATA[cur];
   let body=head(d);
   if(tab==='overview') body+=kpis(d)+catPanel(d)+promptTable(d)+FOOT;
   else if(tab==='prompts') body+=kpis(d)+promptTable(d)+FOOT;
+  else if(tab==='discover') body+=discoveryPanel()+FOOT;
   else if(tab==='visibility') body+=kpis(d)+catPanel(d)+FOOT;
   else if(tab==='competitors') body+=kpis(d)+competitorsPanel(d)+FOOT;
+  else if(tab==='citations') body+=kpis(d)+citationsPanel()+FOOT;
   else if(tab==='issues') body+=kpis(d)+issuesPanel(d)+FOOT;
   else if(tab==='fixes') body+=fixesPanel(d)+FOOT;
   else if(tab==='plan') body+=planPanel(d)+FOOT;
